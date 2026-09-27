@@ -24,7 +24,7 @@ $result = mysqli_query($conn, "SELECT * FROM mahasiswa");
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Admin</title>
+    <title>View Mahasiswa</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,18 +35,34 @@ $result = mysqli_query($conn, "SELECT * FROM mahasiswa");
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: center;
         }
         th {
             background-color: #f2f2f2;
+        }
+        .ubah {
+            color: white;
+            text-decoration: none;
+            padding-right: 10px;
+         background-color: green;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .hapus {
+            color: white;
+            text-decoration: none;
+            padding-left: 10px;
+            background-color: red;
+            padding: 5px 10px;
+            border-radius: 5px;
         }
 
     </style>
 </head>
 
 <body>
-    <h1> Selamat Datang, Mahasiswa</h1>
+    <h1> Daftar Ruang Mahasiswa</h1>
 
     <table border="1" cellpadding="10" cellspacing="0">
         <tr>
@@ -63,7 +79,7 @@ $result = mysqli_query($conn, "SELECT * FROM mahasiswa");
         <tr>
             <td><?= $mhs['id_mahasiswa'] ?></td>
             <td>
-                <a href="">ubah</a> | <a href="">hapus</a>
+                <a href="" class="ubah">ubah</a> | <a href="" class="hapus">hapus</a>
             </td>
             <td><?= $mhs['npm'] ?></td>
             <td><?= $mhs['nama_mahasiswa'] ?></td>
