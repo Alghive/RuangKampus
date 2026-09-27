@@ -3,6 +3,8 @@ require __DIR__ . '/../../controller/function.php';
 
 $mahasiswa = query("SELECT * FROM mahasiswa");
 $berhasilUbah = ($_GET['status'] ?? '') === 'ubah';
+$berhasilHapus = ($_GET['status'] ?? '') === 'hapus';
+$gagalHapus = ($_GET['status'] ?? '') === 'gagal-hapus';
 $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
 ?>
 <!DOCTYPE html>
@@ -15,7 +17,7 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/mahasiswa.css">
+    <link rel="stylesheet" href="../css/mahasiswa.css?v=3">
 </head>
 
 <body>
@@ -39,6 +41,10 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
 
         <?php if ($berhasilUbah) : ?>
             <p class="notice" role="status">Data mahasiswa berhasil diperbarui.</p>
+        <?php elseif ($berhasilHapus) : ?>
+            <p class="notice" role="status">Data mahasiswa berhasil dihapus.</p>
+        <?php elseif ($gagalHapus) : ?>
+            <p class="form-error" role="alert">Data mahasiswa gagal dihapus atau sudah tidak ditemukan.</p>
         <?php elseif (($_GET['status'] ?? '') === 'tambah' && $jumlahDitambah > 0) : ?>
             <p class="notice" role="status"><?= $jumlahDitambah ?> data mahasiswa berhasil ditambahkan.</p>
         <?php endif; ?>
@@ -75,13 +81,33 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
                                 <?php foreach ($mahasiswa as $mhs) : ?>
                                     <tr data-search="<?= escapeHtml(implode(' ', [$mhs['npm'], $mhs['nama_mahasiswa'], $mhs['program_studi'], $mhs['angkatan'], $mhs['agama']])) ?>">
                                         <td class="number-cell"><?= $i++ ?></td>
-                                        <td><a href="ubah-mahasiswa.php?id=<?= (int) $mhs['id_mahasiswa'] ?>" class="edit-link">Ubah</a></td>
-                                        <td class="npm-cell"><?= escapeHtml($mhs['npm']) ?></td>
-                                        <td class="name-cell"><?= escapeHtml($mhs['nama_mahasiswa']) ?></td>
-                                        <td><?= ($mhs['jenis_kelamin'] ?? '') === 'L' ? 'Laki-laki' : (($mhs['jenis_kelamin'] ?? '') === 'P' ? 'Perempuan' : '-') ?></td>
-                                        <td><?= escapeHtml($mhs['program_studi']) ?></td>
-                                        <td><?= escapeHtml($mhs['angkatan']) ?></td>
-                                        <td><?= escapeHtml($mhs['agama']) ?></td>
+                                            <td class="action-cell">
+                                                <div class="row-actions">
+                                                    <a href="ubah-mahasiswa.php?id=<?= (int) $mhs['id_mahasiswa'] ?>" class="action-icon" aria-label="Ubah data <?= escapeHtml($mhs['nama_mahasiswa']) ?>" title="Ubah">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                            <path d="M12 20h9" />
+                                                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                                                        </svg>
+                                                    </a>
+                                                    <form class="delete-form" action="hapus-mahasiswa.php" method="post" data-name="<?= escapeHtml($mhs['nama_mahasiswa']) ?>">
+                                                        <input type="hidden" name="id_mahasiswa" value="<?= (int) $mhs['id_mahasiswa'] ?>">
+                                                        <button class="action-icon action-icon--delete" type="submit" aria-label="Hapus data <?= escapeHtml($mhs['nama_mahasiswa']) ?>" title="Hapus">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                                <path d="M3 6h18" />
+                                                                <path d="M8 6V4h8v2" />
+                                                                <path d="m19 6-1 14H6L5 6" />
+                                                                <path d="M10 11v6M14 11v6" />
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        <td class="npm-cell" data-label="NPM"><?= escapeHtml($mhs['npm']) ?></td>
+                                        <td class="name-cell" data-label="Nama"><?= escapeHtml($mhs['nama_mahasiswa']) ?></td>
+                                        <td data-label="Jenis Kelamin"><?= ($mhs['jenis_kelamin'] ?? '') === 'L' ? 'Laki-laki' : (($mhs['jenis_kelamin'] ?? '') === 'P' ? 'Perempuan' : '-') ?></td>
+                                        <td data-label="Program Studi"><?= escapeHtml($mhs['program_studi']) ?></td>
+                                        <td data-label="Angkatan"><?= escapeHtml($mhs['angkatan']) ?></td>
+                                        <td data-label="Agama"><?= escapeHtml($mhs['agama']) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 <tr id="emptyState" hidden><td class="empty-cell" colspan="8">Tidak ada mahasiswa yang cocok dengan pencarian.</td></tr>
@@ -113,6 +139,16 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
 
             if (emptyState) emptyState.hidden = visibleCount !== 0;
             resultCount.textContent = `Menampilkan ${visibleCount} dari ${totalStudents} mahasiswa`;
+        });
+    </script>
+    <script>
+        document.querySelectorAll('.delete-form').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+                const studentName = form.dataset.name;
+                if (!window.confirm(`Hapus data mahasiswa ${studentName}?`)) {
+                    event.preventDefault();
+                }
+            });
         });
     </script>
 </body>

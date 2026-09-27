@@ -42,6 +42,12 @@ body {
     gap: 11px;
 }
 
+.brand-name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+}
+
 .brand-mark {
     display: grid;
     width: 34px;
@@ -55,10 +61,40 @@ body {
     font-weight: 800;
 }
 
-.brand-name {
-    font-family: 'Manrope', sans-serif;
-    font-size: 15px;
-    font-weight: 800;
+.action-icon {
+    display: inline-grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid #cfe2d5;
+    border-radius: 5px;
+    background: #fff;
+    color: var(--green-dark);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.action-icon svg {
+    width: 17px;
+    height: 17px;
+}
+
+.action-icon:hover {
+    background: var(--green-soft);
+}
+
+.action-icon:focus-visible {
+    outline: 3px solid #17664a40;
+    outline-offset: 2px;
+}
+
+.action-icon--delete {
+    border-color: #ecd8d0;
+    color: #9b4b34;
+}
+
+.action-icon--delete:hover {
+    background: #fff0eb;
 }
 
 .brand-caption {
@@ -250,6 +286,33 @@ tbody tr:hover {
 .edit-link:hover {
     border-color: var(--green);
     background: var(--green-soft);
+}
+
+.row-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.delete-form {
+    margin: 0;
+}
+
+.delete-button {
+    min-height: 32px;
+    padding: 0 9px;
+    border: 1px solid #ecd8d0;
+    border-radius: 4px;
+    background: #fff;
+    color: #9b4b34;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background: #fff0eb;
 }
 
 .empty-cell {
@@ -527,6 +590,98 @@ tbody tr:hover {
 .batch-rows {
     display: grid;
     gap: 12px;
+}
+
+@media (max-width: 900px) {
+
+    .table-frame,
+    .table-scroll {
+        overflow: visible;
+    }
+
+    .table-scroll table {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .table-scroll thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .table-scroll tbody {
+        display: grid;
+        gap: 10px;
+    }
+
+    .table-scroll tbody tr[data-search] {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--paper);
+    }
+
+    .table-scroll tbody tr[data-search] td[data-label] {
+        display: grid;
+        grid-template-columns: minmax(84px, 32%) minmax(0, 1fr);
+        gap: 10px;
+        padding: 10px 12px;
+        border-bottom: 1px solid #edf1ee;
+        overflow-wrap: anywhere;
+    }
+
+    .table-scroll tbody tr[data-search] td[data-label]::before {
+        color: var(--muted);
+        content: attr(data-label);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .3px;
+        text-transform: uppercase;
+    }
+
+    .table-scroll tbody tr[data-search] .number-cell {
+        display: none;
+    }
+
+    .table-scroll tbody tr[data-search] .action-cell {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0;
+        border: 0;
+    }
+
+    .table-scroll tbody tr[data-search] .npm-cell {
+        min-height: 54px;
+        padding-right: 88px;
+        white-space: normal;
+    }
+
+    .table-scroll tbody tr[data-search] .name-cell {
+        white-space: normal;
+    }
+
+    .table-scroll tbody tr[data-search] td:last-child {
+        border-bottom: 0;
+    }
+
+    .table-scroll tbody #emptyState:not([hidden]) {
+        display: block;
+    }
+
+    .table-scroll tbody #emptyState .empty-cell {
+        display: block;
+        width: 100%;
+    }
 }
 
 .batch-row {
