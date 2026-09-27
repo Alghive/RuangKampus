@@ -1,5 +1,7 @@
 <?php
 require __DIR__ . '/../../controller/function.php';
+require __DIR__ . '/../../controller/auth.php';
+requireRole(['admin', 'operator']);
 
 if (!isset($_GET['id']) || !ctype_digit($_GET['id'])) {
     header('Location: view-mahasiswa.php');
@@ -8,6 +10,7 @@ if (!isset($_GET['id']) || !ctype_digit($_GET['id'])) {
 
 $id = (int) $_GET['id'];
 $mahasiswa = getMahasiswaById($id);
+$programStudiOptions = \App\Models\ProgramStudiModel::all();
 
 if (!$mahasiswa) {
     http_response_code(404);
@@ -15,10 +18,21 @@ if (!$mahasiswa) {
 }
 
 $form = $mahasiswa;
+if (empty($form['id_program_studi'])) {
+    $existingProgram = \App\Models\ProgramStudiModel::findByName($form['program_studi'] ?? '');
+    $form['id_program_studi'] = $existingProgram['id_program_studi'] ?? '';
+}
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCsrfToken();
     $form = array_merge($form, $_POST);
+    $selectedProgramId = $_POST['id_program_studi'] ?? '';
+    $program = is_string($selectedProgramId) && ctype_digit($selectedProgramId)
+        ? \App\Models\ProgramStudiModel::findById((int) $selectedProgramId)
+        : null;
+    $_POST['program_studi'] = $program['nama_prodi'] ?? '';
+    $form['id_program_studi'] = $program['id_program_studi'] ?? '';
     $_POST['id_mahasiswa'] = $id;
 
     if (trim($_POST['npm'] ?? '') === '' || trim($_POST['nama_mahasiswa'] ?? '') === '' || trim($_POST['program_studi'] ?? '') === '' || trim($_POST['angkatan'] ?? '') === '') {
@@ -47,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/mahasiswa.css?v=3">
+    <link rel="stylesheet" href="../css/mahasiswa.css?v=8">
 </head>
 
 <body>
@@ -56,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="brand-mark" aria-hidden="true">RK</div>
             <span class="brand-name">RuangKampus</span>
             <span class="brand-caption">Administrasi Akademik</span>
+            <?= authUserMenu() ?>
         </div>
     </header>
 
@@ -73,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form class="edit-panel edit-form" method="post">
+            <?= csrfField() ?>
             <div class="edit-fields">
                 <label class="form-field">NPM
                     <input type="text" name="npm" maxlength="20" required value="<?= escapeHtml($form['npm'] ?? '') ?>">
@@ -88,7 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </select>
                 </label>
                 <label class="form-field">Program Studi
-                    <input type="text" name="program_studi" maxlength="100" required value="<?= escapeHtml($form['program_studi'] ?? '') ?>">
+                    <select name="id_program_studi" required>
+                        <option value="">Pilih program studi</option>
+                        <?php foreach ($programStudiOptions as $program) : ?>
+                            <option value="<?= (int) $program['id_program_studi'] ?>" <?= (string) ($form['id_program_studi'] ?? '') === (string) $program['id_program_studi'] ? 'selected' : '' ?>><?= escapeHtml($program['nama_prodi']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </label>
                 <label class="form-field">Angkatan
                     <input type="number" name="angkatan" required value="<?= escapeHtml($form['angkatan'] ?? '') ?>">

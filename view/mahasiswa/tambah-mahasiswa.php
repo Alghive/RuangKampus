@@ -1,8 +1,11 @@
 <?php
 require __DIR__ . '/../../controller/function.php';
+require __DIR__ . '/../../controller/auth.php';
+requireRole(['admin', 'operator']);
 
 $jenisKelaminOptions = ['L' => 'Laki-laki', 'P' => 'Perempuan'];
 $agamaOptions = ['Islam', 'Protestan', 'Kristen', 'Budha', 'Hindu', 'Konghucu', 'Aliran Lain'];
+$programStudiOptions = \App\Models\ProgramStudiModel::all();
 $emptyRow = [
     'npm' => '',
     'nama_mahasiswa' => '',
@@ -15,6 +18,7 @@ $rows = [$emptyRow];
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCsrfToken();
     $submittedRows = $_POST['mahasiswa'] ?? null;
 
     if (!is_array($submittedRows) || count($submittedRows) === 0) {
@@ -27,10 +31,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach (array_slice($submittedRows, 0, 50) as $submittedRow) {
             $submittedRow = is_array($submittedRow) ? $submittedRow : [];
             $row = [];
+            $selectedProgramId = $submittedRow['id_program_studi'] ?? '';
+            $program = is_string($selectedProgramId) && ctype_digit($selectedProgramId)
+                ? \App\Models\ProgramStudiModel::findById((int) $selectedProgramId)
+                : null;
             foreach ($emptyRow as $field => $defaultValue) {
-                $value = $submittedRow[$field] ?? '';
+                $value = $field === 'program_studi'
+                    ? ($program['nama_prodi'] ?? '')
+                    : ($submittedRow[$field] ?? '');
                 $row[$field] = is_string($value) || is_numeric($value) ? trim((string) $value) : '';
             }
+            $row['id_program_studi'] = $program ? (string) $program['id_program_studi'] : '';
             $rows[] = $row;
         }
 
@@ -92,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/mahasiswa.css?v=3">
+    <link rel="stylesheet" href="../css/mahasiswa.css?v=8">
 </head>
 
 <body>
@@ -101,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="brand-mark" aria-hidden="true">RK</div>
             <span class="brand-name">RuangKampus</span>
             <span class="brand-caption">Administrasi Akademik</span>
+            <?= authUserMenu() ?>
         </div>
     </header>
 
@@ -118,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form class="batch-panel" method="post">
+            <?= csrfField() ?>
             <div class="batch-toolbar">
                 <div>
                     <h2 class="table-title">Data mahasiswa</h2>
@@ -150,7 +163,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </select>
                             </label>
                             <label class="form-field">Program Studi
-                                <input type="text" name="mahasiswa[<?= $index ?>][program_studi]" maxlength="100" required value="<?= escapeHtml($row['program_studi']) ?>">
+                                <select name="mahasiswa[<?= $index ?>][id_program_studi]" required>
+                                    <option value="">Pilih program studi</option>
+                                    <?php foreach ($programStudiOptions as $program) : ?>
+                                        <option value="<?= (int) $program['id_program_studi'] ?>" <?= (string) ($row['id_program_studi'] ?? '') === (string) $program['id_program_studi'] ? 'selected' : '' ?>><?= escapeHtml($program['nama_prodi']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </label>
                             <label class="form-field">Angkatan
                                 <input type="number" name="mahasiswa[<?= $index ?>][angkatan]" min="1" max="9999" required value="<?= escapeHtml($row['angkatan']) ?>">
@@ -190,7 +208,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </select>
                         </label>
                         <label class="form-field">Program Studi
-                            <input type="text" name="mahasiswa[__INDEX__][program_studi]" maxlength="100" required>
+                            <select name="mahasiswa[__INDEX__][id_program_studi]" required>
+                                <option value="">Pilih program studi</option>
+                                <?php foreach ($programStudiOptions as $program) : ?>
+                                    <option value="<?= (int) $program['id_program_studi'] ?>"><?= escapeHtml($program['nama_prodi']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </label>
                         <label class="form-field">Angkatan
                             <input type="number" name="mahasiswa[__INDEX__][angkatan]" min="1" max="9999" required>

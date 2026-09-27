@@ -1,7 +1,10 @@
 <?php
 require __DIR__ . '/../../controller/function.php';
+require __DIR__ . '/../../controller/auth.php';
+requireLogin();
 
-$mahasiswa = query("SELECT * FROM mahasiswa");
+$mahasiswa = query("SELECT m.*, p.nama_prodi AS nama_prodi FROM mahasiswa AS m LEFT JOIN program_studi AS p ON p.id_program_studi = m.id_program_studi");
+$canManageStudents = hasRole(['admin', 'operator']);
 $berhasilUbah = ($_GET['status'] ?? '') === 'ubah';
 $berhasilHapus = ($_GET['status'] ?? '') === 'hapus';
 $gagalHapus = ($_GET['status'] ?? '') === 'gagal-hapus';
@@ -17,7 +20,7 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/mahasiswa.css?v=3">
+    <link rel="stylesheet" href="../css/mahasiswa.css?v=8">
 </head>
 
 <body>
@@ -26,6 +29,7 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
             <div class="brand-mark" aria-hidden="true">RK</div>
             <span class="brand-name">RuangKampus</span>
             <span class="brand-caption">Administrasi Akademik</span>
+            <?= authUserMenu() ?>
         </div>
     </header>
 
@@ -54,7 +58,9 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
                 <h2 class="table-title" id="table-title">Data mahasiswa</h2>
                 <div class="table-actions">
                     <input class="search-input" id="searchMahasiswa" type="search" placeholder="Cari nama, NPM, atau program studi" aria-label="Cari mahasiswa">
-                    <a class="primary-link" href="tambah-mahasiswa.php">+ Tambah mahasiswa</a>
+                    <?php if ($canManageStudents) : ?>
+                        <a class="primary-link" href="tambah-mahasiswa.php">+ Tambah mahasiswa</a>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -64,7 +70,9 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
                         <thead>
                             <tr>
                                 <th scope="col">No.</th>
-                                <th scope="col">Aksi</th>
+                                <?php if ($canManageStudents) : ?>
+                                    <th scope="col">Aksi</th>
+                                <?php endif; ?>
                                 <th scope="col">NPM</th>
                                 <th scope="col">Nama Mahasiswa</th>
                                 <th scope="col">Jenis Kelamin</th>
@@ -75,12 +83,13 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
                         </thead>
                         <tbody id="mahasiswaRows">
                             <?php if (count($mahasiswa) === 0) : ?>
-                                <tr><td class="empty-cell" colspan="8">Belum ada data mahasiswa.</td></tr>
+                                <tr><td class="empty-cell" colspan="<?= $canManageStudents ? 8 : 7 ?>">Belum ada data mahasiswa.</td></tr>
                             <?php else : ?>
                                 <?php $i = 1; ?>
                                 <?php foreach ($mahasiswa as $mhs) : ?>
-                                    <tr data-search="<?= escapeHtml(implode(' ', [$mhs['npm'], $mhs['nama_mahasiswa'], $mhs['program_studi'], $mhs['angkatan'], $mhs['agama']])) ?>">
+                                    <tr data-search="<?= escapeHtml(implode(' ', [$mhs['npm'], $mhs['nama_mahasiswa'], $mhs['nama_prodi'] ?? $mhs['program_studi'], $mhs['angkatan'], $mhs['agama']])) ?>">
                                         <td class="number-cell"><?= $i++ ?></td>
+                                            <?php if ($canManageStudents) : ?>
                                             <td class="action-cell">
                                                 <div class="row-actions">
                                                     <a href="ubah-mahasiswa.php?id=<?= (int) $mhs['id_mahasiswa'] ?>" class="action-icon" aria-label="Ubah data <?= escapeHtml($mhs['nama_mahasiswa']) ?>" title="Ubah">
@@ -91,6 +100,7 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
                                                     </a>
                                                     <form class="delete-form" action="hapus-mahasiswa.php" method="post" data-name="<?= escapeHtml($mhs['nama_mahasiswa']) ?>">
                                                         <input type="hidden" name="id_mahasiswa" value="<?= (int) $mhs['id_mahasiswa'] ?>">
+                                                        <?= csrfField() ?>
                                                         <button class="action-icon action-icon--delete" type="submit" aria-label="Hapus data <?= escapeHtml($mhs['nama_mahasiswa']) ?>" title="Hapus">
                                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                                 <path d="M3 6h18" />
@@ -102,15 +112,16 @@ $jumlahDitambah = max(0, (int) ($_GET['jumlah'] ?? 0));
                                                     </form>
                                                 </div>
                                             </td>
+                                            <?php endif; ?>
                                         <td class="npm-cell" data-label="NPM"><?= escapeHtml($mhs['npm']) ?></td>
                                         <td class="name-cell" data-label="Nama"><?= escapeHtml($mhs['nama_mahasiswa']) ?></td>
                                         <td data-label="Jenis Kelamin"><?= ($mhs['jenis_kelamin'] ?? '') === 'L' ? 'Laki-laki' : (($mhs['jenis_kelamin'] ?? '') === 'P' ? 'Perempuan' : '-') ?></td>
-                                        <td data-label="Program Studi"><?= escapeHtml($mhs['program_studi']) ?></td>
+                                        <td data-label="Program Studi"><?= escapeHtml($mhs['nama_prodi'] ?? $mhs['program_studi']) ?></td>
                                         <td data-label="Angkatan"><?= escapeHtml($mhs['angkatan']) ?></td>
                                         <td data-label="Agama"><?= escapeHtml($mhs['agama']) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
-                                <tr id="emptyState" hidden><td class="empty-cell" colspan="8">Tidak ada mahasiswa yang cocok dengan pencarian.</td></tr>
+                                <tr id="emptyState" hidden><td class="empty-cell" colspan="<?= $canManageStudents ? 8 : 7 ?>">Tidak ada mahasiswa yang cocok dengan pencarian.</td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
