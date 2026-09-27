@@ -1187,6 +1187,125 @@ tbody tr:hover {
     outline-offset: 2px;
 }
 
+.master-shell {
+    max-width: 1180px;
+}
+
+.master-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    margin: 0 0 28px;
+    border-bottom: 1px solid var(--line);
+}
+
+.master-tabs a {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    padding: 0 13px;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.master-tabs a:hover {
+    color: var(--green-dark);
+}
+
+.master-tabs a.is-current {
+    border-bottom-color: var(--green);
+    color: var(--green-dark);
+}
+
+.master-create-section,
+.master-list-section {
+    margin-top: 30px;
+}
+
+.master-section-heading {
+    margin-bottom: 14px;
+}
+
+.master-section-heading h2 {
+    margin: 0;
+    font-family: 'Manrope', 'Trebuchet MS', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.master-section-heading p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.master-create-form {
+    display: grid;
+    align-items: end;
+    gap: 16px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--paper);
+}
+
+.lecturer-create-form {
+    grid-template-columns: minmax(130px, .8fr) minmax(220px, 1.4fr) minmax(200px, 1.2fr) auto;
+}
+
+.course-create-form {
+    grid-template-columns: minmax(140px, .8fr) minmax(200px, 1.3fr) minmax(80px, .45fr) minmax(190px, 1.2fr) auto;
+}
+
+.master-input {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #d5dfd9;
+    border-radius: 4px;
+    outline: none;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 400;
+}
+
+.master-input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px #17664a1a;
+}
+
+.master-table {
+    min-width: 850px;
+}
+
+.lecturer-table {
+    min-width: 850px;
+}
+
+.course-table {
+    min-width: 1060px;
+}
+
+.master-update-form,
+.master-delete-form {
+    margin: 0;
+}
+
+.master-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.course-sks-input {
+    max-width: 90px;
+}
+
 @media (max-width: 640px) {
     .topbar-user {
         gap: 8px;
@@ -1256,5 +1375,33 @@ tbody tr:hover {
 
     .program-create-form .save-button {
         width: 100%;
+    }
+
+    .master-shell {
+        padding-top: 30px;
+    }
+
+    .master-tabs {
+        gap: 0;
+        margin-bottom: 22px;
+    }
+
+    .master-tabs a {
+        padding: 0 10px;
+    }
+
+    .master-create-form,
+    .lecturer-create-form,
+    .course-create-form {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .master-create-form .save-button {
+        width: 100%;
+    }
+
+    .master-actions {
+        justify-content: flex-start;
     }
 }
