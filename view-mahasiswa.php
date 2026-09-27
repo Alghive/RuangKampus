@@ -1,19 +1,9 @@
 <?php
-// Koneksi ke database
-$conn = mysqli_connect("localhost", "root", "", "perkuliahan");
+require 'function.php';
 
-// ambil data dari tabel mahasiswa
-$result = mysqli_query($conn, "SELECT * FROM mahasiswa");
 
-// ambil data (fetch) mahasiswa dari object result
-// mysqli_fetch_row() // mengembalikan array numerik
-// mysqli_fetch_assoc() // mengembalikan array associative
-// mysqli_fetch_array() // mengembalikan keduanya
-// mysqli_fetch_object() // mengembalikan object
-// var_dump($mhs->npm);
+$mahasiswa = query("SELECT * FROM mahasiswa");
 
-// while ($mhs = mysqli_fetch_assoc($result)) {
-// }
 
 ?>
 
@@ -75,9 +65,10 @@ $result = mysqli_query($conn, "SELECT * FROM mahasiswa");
             <th>Angkatan</th>
             <th>Agama</th>
         </tr>
-        <?php while ($mhs = mysqli_fetch_assoc($result)) : ?>
+        <?php $i = 1; ?>
+        <?php foreach ($mahasiswa as $mhs) : ?>
         <tr>
-            <td><?= $mhs['id_mahasiswa'] ?></td>
+            <td><?= $i++ ?></td>
             <td>
                 <a href="" class="ubah">ubah</a> | <a href="" class="hapus">hapus</a>
             </td>
@@ -88,7 +79,7 @@ $result = mysqli_query($conn, "SELECT * FROM mahasiswa");
             <td><?= $mhs['angkatan'] ?></td>
             <td><?= $mhs['agama'] ?></td>
         </tr>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
 </body>
 
 </html>
