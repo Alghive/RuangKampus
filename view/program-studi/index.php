@@ -61,7 +61,7 @@ $status = $_GET['status'] ?? '';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/mahasiswa.css?v=9">
+    <link rel="stylesheet" href="../css/mahasiswa.css?v=12">
 </head>
 
 <body>
@@ -80,6 +80,9 @@ $status = $_GET['status'] ?? '';
             <a class="is-current" href="index.php" aria-current="page">Program Studi</a>
             <a href="../dosen/index.php">Dosen</a>
             <a href="../mata-kuliah/index.php">Mata Kuliah</a>
+            <a href="../tahun-akademik/index.php">Tahun Akademik</a>
+            <a href="../ruang/index.php">Ruang</a>
+            <a href="../kelas-kuliah/index.php">Kelas Kuliah</a>
         </nav>
         <section class="page-heading" aria-labelledby="page-title">
             <div>
