@@ -132,6 +132,12 @@ function authUserMenu(): string
             '<path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01" />' .
             '</svg><span class="program-nav-label">Program Studi</span></a>'
         : '';
+    $classLink = $user['role'] === 'admin'
+        ? '<a class="class-nav-link" href="../kelas-kuliah/index.php" aria-label="Kelas Kuliah" title="Kelas Kuliah">' .
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' .
+            '<rect x="3" y="4" width="18" height="17" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 17h7" />' .
+            '</svg><span class="class-nav-label">Kelas Kuliah</span></a>'
+        : '';
     $accountLink = $user['role'] === 'admin'
         ? '<a class="account-nav-link" href="../akun/index.php" aria-label="Kelola akun" title="Kelola akun">' .
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' .
@@ -141,7 +147,7 @@ function authUserMenu(): string
             '</svg><span class="account-nav-label">Kelola akun</span></a>'
         : '';
 
-    return '<div class="topbar-user">' . $programLink . $accountLink . '<span class="topbar-user-name">' . $name .
+    return '<div class="topbar-user">' . $programLink . $classLink . $accountLink . '<span class="topbar-user-name">' . $name .
         '<small>' . $role . '</small></span><form action="../auth/logout.php" method="post">' .
         csrfField() . '<button class="logout-button" type="submit">Keluar</button></form></div>';
 }

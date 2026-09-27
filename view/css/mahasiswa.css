@@ -887,7 +887,8 @@ tbody tr:hover {
 }
 
 .account-nav-link,
-.program-nav-link {
+.program-nav-link,
+.class-nav-link {
     display: inline-flex;
     min-height: 36px;
     align-items: center;
@@ -904,20 +905,23 @@ tbody tr:hover {
 }
 
 .account-nav-link svg,
-.program-nav-link svg {
+.program-nav-link svg,
+.class-nav-link svg {
     width: 16px;
     height: 16px;
     flex: 0 0 auto;
 }
 
 .account-nav-link:hover,
-.program-nav-link:hover {
+.program-nav-link:hover,
+.class-nav-link:hover {
     border-color: var(--green);
     background: #dcefe3;
 }
 
 .account-nav-link:focus-visible,
-.program-nav-link:focus-visible {
+.program-nav-link:focus-visible,
+.class-nav-link:focus-visible {
     outline: 3px solid #17664a40;
     outline-offset: 2px;
 }
@@ -1261,6 +1265,18 @@ tbody tr:hover {
     grid-template-columns: minmax(140px, .8fr) minmax(200px, 1.3fr) minmax(80px, .45fr) minmax(190px, 1.2fr) auto;
 }
 
+.class-create-form {
+    grid-template-columns: minmax(220px, 1.3fr) minmax(200px, 1.2fr) minmax(200px, 1.2fr) minmax(90px, .55fr) minmax(100px, .65fr) auto;
+}
+
+.year-create-form {
+    grid-template-columns: minmax(180px, 1fr) minmax(150px, .8fr) minmax(150px, .8fr) auto;
+}
+
+.room-create-form {
+    grid-template-columns: minmax(150px, .8fr) minmax(220px, 1.4fr) minmax(130px, .7fr) auto;
+}
+
 .master-input {
     width: 100%;
     min-height: 40px;
@@ -1291,6 +1307,18 @@ tbody tr:hover {
     min-width: 1060px;
 }
 
+.class-table {
+    min-width: 1280px;
+}
+
+.year-table {
+    min-width: 780px;
+}
+
+.room-table {
+    min-width: 850px;
+}
+
 .master-update-form,
 .master-delete-form {
     margin: 0;
@@ -1304,6 +1332,16 @@ tbody tr:hover {
 
 .course-sks-input {
     max-width: 90px;
+}
+
+.class-quota-input {
+    max-width: 110px;
+}
+
+@media (max-width: 1100px) {
+    .class-create-form {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 640px) {
@@ -1337,7 +1375,18 @@ tbody tr:hover {
         padding: 0;
     }
 
+    .class-nav-link {
+        width: 36px;
+        min-height: 36px;
+        justify-content: center;
+        padding: 0;
+    }
+
     .program-nav-label {
+        display: none;
+    }
+
+    .class-nav-label {
         display: none;
     }
 
@@ -1392,7 +1441,10 @@ tbody tr:hover {
 
     .master-create-form,
     .lecturer-create-form,
-    .course-create-form {
+    .course-create-form,
+    .class-create-form,
+    .year-create-form,
+    .room-create-form {
         grid-template-columns: 1fr;
         padding: 16px;
     }
