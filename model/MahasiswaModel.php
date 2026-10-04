@@ -8,38 +8,80 @@ final class MahasiswaModel extends BaseModel
     protected const TABLE = 'mahasiswa';
     protected const PRIMARY_KEY = 'id_mahasiswa';
 
-    public static function update(array $data): bool
-    {
-        $connection = self::connection();
-        $statement = null;
 
-        try {
-            $programName = trim($data['program_studi']);
-            $programId = ProgramStudiModel::findOrCreate($programName);
-            $statement = $connection->prepare(
-                'UPDATE `mahasiswa` SET `npm` = ?, `nama_mahasiswa` = ?, `jenis_kelamin` = ?, ' .
-                '`program_studi` = ?, `id_program_studi` = ?, `angkatan` = ?, `agama` = ? ' .
-                'WHERE `id_mahasiswa` = ?'
-            );
+public static function update(array $data): bool
+{
+    $connection = self::connection();
+    $statement = null;
 
-            $id = (int) $data['id_mahasiswa'];
-            $npm = trim($data['npm']);
-            $name = trim($data['nama_mahasiswa']);
-            $gender = $data['jenis_kelamin'];
-            $year = (int) $data['angkatan'];
-            $religion = $data['agama'];
-            $statement->bind_param('ssssisis', $npm, $name, $gender, $programName, $programId, $year, $religion, $id);
-            $statement->execute();
+    try {
+        $programName = trim($data['program_studi']);
+        $programId = ProgramStudiModel::findOrCreate($programName);
 
-            return $statement->affected_rows === 1 || self::findById($id) !== null;
-        } catch (Throwable $exception) {
+        $id = (int) $data['id_mahasiswa'];
+        $npm = trim($data['npm']);
+        $name = trim($data['nama_mahasiswa']);
+        $gender = $data['jenis_kelamin'];
+        $year = (int) $data['angkatan'];
+        $religion = trim($data['agama']);
+
+        // Validasi agama sesuai ENUM database
+        $allowedReligions = [
+            'Islam',
+            'Kristen',
+            'Katolik',
+            'Hindu',
+            'Buddha',
+            'Konghucu',
+            'Aliran Lain'
+        ];
+
+        if (!in_array($religion, $allowedReligions, true)) {
             return false;
-        } finally {
-            if ($statement !== null) {
-                $statement->close();
-            }
+        }
+
+        $statement = $connection->prepare(
+            'UPDATE `mahasiswa` SET
+                `npm` = ?,
+                `nama_mahasiswa` = ?,
+                `jenis_kelamin` = ?,
+                `program_studi` = ?,
+                `id_program_studi` = ?,
+                `angkatan` = ?,
+                `agama` = ?
+             WHERE `id_mahasiswa` = ?'
+        );
+
+        // s = string, i = integer
+        $statement->bind_param(
+            'ssssiisi',
+            $npm,
+            $name,
+            $gender,
+            $programName,
+            $programId,
+            $year,
+            $religion,
+            $id
+        );
+
+        $statement->execute();
+
+        return $statement->affected_rows === 1
+            || self::findById($id) !== null;
+
+    } catch (Throwable $exception) {
+        error_log($exception->getMessage());
+        return false;
+
+    } finally {
+        if ($statement !== null) {
+            $statement->close();
         }
     }
+}
+
+
 
     public static function delete(int $id): bool
     {

@@ -2,7 +2,11 @@
 require __DIR__ . '/../../controller/auth.php';
 
 if (currentUser() !== null) {
-    header('Location: ../mahasiswa/view-mahasiswa.php');
+    $user = currentUser();
+    $target = $user !== null && in_array($user['role'], ['admin', 'operator'], true)
+        ? '../mahasiswa/view-mahasiswa.php'
+        : '../krs/mahasiswa.php';
+    header('Location: ' . $target);
     exit;
 }
 
@@ -23,7 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Username atau password tidak sesuai.';
     } else {
         if (loginUser(trim($usernameInput), $passwordInput)) {
-            header('Location: ../mahasiswa/view-mahasiswa.php');
+            $user = currentUser();
+            $target = $user !== null && in_array($user['role'], ['admin', 'operator'], true)
+                ? '../mahasiswa/view-mahasiswa.php'
+                : '../krs/mahasiswa.php';
+            header('Location: ' . $target);
             exit;
         }
         $error = 'Username atau password tidak sesuai.';

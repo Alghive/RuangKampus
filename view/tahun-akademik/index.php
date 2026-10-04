@@ -86,6 +86,7 @@ $status = $_GET['status'] ?? '';
             <a class="is-current" href="index.php" aria-current="page">Tahun Akademik</a>
             <a href="../ruang/index.php">Ruang</a>
             <a href="../kelas-kuliah/index.php">Kelas Kuliah</a>
+            <a href="../jadwal-kuliah/index.php">Jadwal Kuliah</a>
         </nav>
         <section class="page-heading" aria-labelledby="page-title">
             <div>

@@ -25,8 +25,8 @@ if (strlen($password) < 12) {
     fwrite(STDERR, "Password minimal 12 karakter.\n");
     exit(1);
 }
-if (!in_array($role, ['admin', 'operator', 'viewer'], true)) {
-    fwrite(STDERR, "Role harus admin, operator, atau viewer.\n");
+if (!in_array($role, ['admin', 'operator', 'viewer', 'student'], true)) {
+    fwrite(STDERR, "Role harus admin, operator, viewer, atau student.\n");
     exit(1);
 }
 
