@@ -11,7 +11,7 @@ final class UserModel extends BaseModel
     public static function findActiveByUsername(string $username): ?array
     {
         $statement = self::connection()->prepare(
-            'SELECT `id_user`, `username`, `nama_lengkap`, `password_hash`, `role`, ' .
+            'SELECT `id_user`, `username`, `nama_lengkap`, `password_hash`, `role`, `id_mahasiswa`, ' .
             '`failed_login_attempts`, `locked_until` ' .
             'FROM `users` WHERE `username` = ? AND `is_active` = 1 LIMIT 1'
         );
@@ -23,9 +23,28 @@ final class UserModel extends BaseModel
         return $user;
     }
 
+    public static function findById(int $userId): ?array
+    {
+        if ($userId <= 0) {
+            return null;
+        }
+
+        $statement = self::connection()->prepare(
+            'SELECT `id_user`, `username`, `nama_lengkap`, `password_hash`, `role`, `id_mahasiswa`, ' .
+            '`is_active`, `failed_login_attempts`, `locked_until`, `last_login_at` ' .
+            'FROM `users` WHERE `id_user` = ? LIMIT 1'
+        );
+        $statement->bind_param('i', $userId);
+        $statement->execute();
+        $user = $statement->get_result()->fetch_assoc() ?: null;
+        $statement->close();
+
+        return $user;
+    }
+
     public static function create(string $username, string $name, string $passwordHash, string $role): bool
     {
-        if (!in_array($role, ['admin', 'operator', 'viewer'], true)) {
+        if (!in_array($role, ['admin', 'operator', 'viewer', 'student'], true)) {
             return false;
         }
 
@@ -53,9 +72,49 @@ final class UserModel extends BaseModel
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    public static function linkStudent(int $userId, ?int $studentId): bool
+    {
+        if ($userId <= 0) {
+            return false;
+        }
+
+        $user = self::findById($userId);
+        if ($user === null) {
+            return false;
+        }
+
+        if ($studentId !== null && $studentId > 0) {
+            $exists = self::connection()->prepare(
+                'SELECT `id_user` FROM `users` WHERE `id_mahasiswa` = ? AND `id_user` != ? LIMIT 1'
+            );
+            $exists->bind_param('ii', $studentId, $userId);
+            $exists->execute();
+            $alreadyLinked = $exists->get_result()->fetch_assoc() !== null;
+            $exists->close();
+            if ($alreadyLinked) {
+                return false;
+            }
+
+            $student = \App\Models\MahasiswaModel::findById((int) $studentId);
+            if ($student === null) {
+                return false;
+            }
+        }
+
+        $statement = self::connection()->prepare(
+            'UPDATE `users` SET `id_mahasiswa` = ? WHERE `id_user` = ?'
+        );
+        $boundStudentId = $studentId !== null && $studentId > 0 ? $studentId : null;
+        $statement->bind_param('ii', $boundStudentId, $userId);
+        $statement->execute();
+        $statement->close();
+
+        return true;
+    }
+
     public static function updateAccess(int $userId, string $role, bool $isActive): bool
     {
-        if ($userId <= 0 || !in_array($role, ['admin', 'operator', 'viewer'], true)) {
+        if ($userId <= 0 || !in_array($role, ['admin', 'operator', 'viewer', 'student'], true)) {
             return false;
         }
 

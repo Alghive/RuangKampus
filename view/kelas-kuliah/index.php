@@ -95,6 +95,7 @@ $masterDataReady = $courses !== [] && $lecturers !== [] && $academicYears !== []
             <a href="../tahun-akademik/index.php">Tahun Akademik</a>
             <a href="../ruang/index.php">Ruang</a>
             <a class="is-current" href="index.php" aria-current="page">Kelas Kuliah</a>
+            <a href="../jadwal-kuliah/index.php">Jadwal Kuliah</a>
         </nav>
         <section class="page-heading" aria-labelledby="page-title">
             <div>

@@ -3,8 +3,17 @@ require __DIR__ . '/../../controller/auth.php';
 requireRole(['admin']);
 
 $error = '';
-$roles = ['admin', 'operator', 'viewer'];
+$roles = ['admin', 'operator', 'viewer', 'student'];
 $currentUser = currentUser();
+$students = \App\Models\MahasiswaModel::all();
+$studentsWithoutAccount = [];
+foreach ($students as $student) {
+    $npm = trim((string) ($student['npm'] ?? ''));
+    if ($npm !== '' && \App\Models\UserModel::findActiveByUsername($npm) === null) {
+        $studentsWithoutAccount[] = $student;
+    }
+}
+$users = \App\Models\UserModel::allForManagement();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     requireCsrfToken();
@@ -32,6 +41,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         } else {
             $error = 'Akun gagal dibuat. Username mungkin sudah digunakan.';
+        }
+    } elseif ($action === 'link-student') {
+        $userId = filter_var($_POST['user_id'] ?? null, FILTER_VALIDATE_INT);
+        $studentId = filter_var($_POST['id_mahasiswa'] ?? null, FILTER_VALIDATE_INT);
+        if ($userId === false || $userId === null || $userId <= 0) {
+            $error = 'Pilih akun yang valid.';
+        } elseif ($studentId === false || $studentId === null || $studentId <= 0) {
+            $error = 'Pilih mahasiswa yang valid.';
+        } elseif (\App\Models\UserModel::linkStudent((int) $userId, (int) $studentId)) {
+            header('Location: index.php?status=linked');
+            exit;
+        } else {
+            $error = 'Penghubung akun mahasiswa gagal dibuat. Pastikan akun dan mahasiswa valid serta belum terhubung.';
+        }
+    } elseif ($action === 'create-from-mahasiswa') {
+        $studentId = filter_var($_POST['id_mahasiswa'] ?? null, FILTER_VALIDATE_INT);
+        $password = $_POST['password'] ?? '';
+        $passwordConfirmation = $_POST['password_confirmation'] ?? '';
+
+        if ($studentId === false || $studentId === null || $studentId <= 0) {
+            $error = 'Pilih mahasiswa yang valid.';
+        } else {
+            $student = \App\Models\MahasiswaModel::findById((int) $studentId);
+            if ($student === null) {
+                $error = 'Data mahasiswa tidak ditemukan.';
+            } else {
+                $username = trim((string) ($student['npm'] ?? ''));
+                if ($username === '') {
+                    $error = 'NPM mahasiswa belum tersedia.';
+                } elseif (!is_string($password) || strlen($password) < 12) {
+                    $error = 'Password minimal 12 karakter.';
+                } elseif (!is_string($passwordConfirmation) || !hash_equals($password, $passwordConfirmation)) {
+                    $error = 'Konfirmasi password tidak sama.';
+                } elseif (\App\Models\UserModel::findActiveByUsername($username) !== null) {
+                    $error = 'Akun mahasiswa dengan NPM ini sudah ada.';
+                } elseif (\App\Models\UserModel::create($username, trim((string) $student['nama_mahasiswa']), password_hash($password, PASSWORD_DEFAULT), 'student')) {
+                    header('Location: index.php?status=created-student');
+                    exit;
+                } else {
+                    $error = 'Akun mahasiswa gagal dibuat.';
+                }
+            }
         }
     } elseif ($action === 'update-access') {
         $userId = filter_var($_POST['user_id'] ?? null, FILTER_VALIDATE_INT);
@@ -93,6 +144,10 @@ $status = $_GET['status'] ?? '';
             <p class="form-error" role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></p>
         <?php elseif ($status === 'created') : ?>
             <p class="notice" role="status">Akun berhasil dibuat.</p>
+        <?php elseif ($status === 'created-student') : ?>
+            <p class="notice" role="status">Akun mahasiswa berhasil dibuat dari data mahasiswa.</p>
+        <?php elseif ($status === 'linked') : ?>
+            <p class="notice" role="status">Akun mahasiswa berhasil dihubungkan ke data mahasiswa.</p>
         <?php elseif ($status === 'updated') : ?>
             <p class="notice" role="status">Hak akses berhasil diperbarui.</p>
         <?php endif; ?>
@@ -124,6 +179,7 @@ $status = $_GET['status'] ?? '';
                         <option value="viewer">Viewer</option>
                         <option value="operator">Operator</option>
                         <option value="admin">Admin</option>
+                        <option value="student">Mahasiswa</option>
                     </select>
                 </label>
                 <div class="account-form-actions">
@@ -132,6 +188,39 @@ $status = $_GET['status'] ?? '';
                 </div>
             </form>
         </section>
+
+        <section class="account-create-section" aria-labelledby="create-student-title">
+            <div class="account-section-heading">
+                <div>
+                    <h2 id="create-student-title">Buat akun mahasiswa dari data mahasiswa</h2>
+                    <p>Gunakan data mahasiswa yang sudah ada. Username otomatis mengikuti NPM.</p>
+                </div>
+            </div>
+            <form class="account-create-form" method="post">
+                <?= csrfField() ?>
+                <input type="hidden" name="action" value="create-from-mahasiswa">
+                <label class="form-field">Mahasiswa
+                    <select class="account-input" name="id_mahasiswa" required>
+                        <option value="">Pilih mahasiswa</option>
+                        <?php foreach ($studentsWithoutAccount as $student) : ?>
+                            <option value="<?= (int) $student['id_mahasiswa'] ?>"><?= htmlspecialchars($student['nama_mahasiswa'] . ' (' . $student['npm'] . ')', ENT_QUOTES, 'UTF-8') ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+                <label class="form-field">Password akun
+                    <input class="account-input" type="password" name="password" minlength="12" autocomplete="new-password" required>
+                </label>
+                <label class="form-field">Ulangi password
+                    <input class="account-input" type="password" name="password_confirmation" minlength="12" autocomplete="new-password" required>
+                </label>
+                <div class="account-form-actions">
+                    <span>Username akan otomatis dibuat dari NPM mahasiswa.</span>
+                    <button class="save-button" type="submit">Buat akun mahasiswa</button>
+                </div>
+            </form>
+        </section>
+
+       
 
         <section class="account-list-section" aria-labelledby="account-list-title">
             <div class="account-section-heading">

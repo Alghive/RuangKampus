@@ -888,7 +888,9 @@ tbody tr:hover {
 
 .account-nav-link,
 .program-nav-link,
-.class-nav-link {
+.class-nav-link,
+.schedule-nav-link,
+.krs-nav-link {
     display: inline-flex;
     min-height: 36px;
     align-items: center;
@@ -906,7 +908,9 @@ tbody tr:hover {
 
 .account-nav-link svg,
 .program-nav-link svg,
-.class-nav-link svg {
+.class-nav-link svg,
+.schedule-nav-link svg,
+.krs-nav-link svg {
     width: 16px;
     height: 16px;
     flex: 0 0 auto;
@@ -914,14 +918,18 @@ tbody tr:hover {
 
 .account-nav-link:hover,
 .program-nav-link:hover,
-.class-nav-link:hover {
+.class-nav-link:hover,
+.schedule-nav-link:hover,
+.krs-nav-link:hover {
     border-color: var(--green);
     background: #dcefe3;
 }
 
 .account-nav-link:focus-visible,
 .program-nav-link:focus-visible,
-.class-nav-link:focus-visible {
+.class-nav-link:focus-visible,
+.schedule-nav-link:focus-visible,
+.krs-nav-link:focus-visible {
     outline: 3px solid #17664a40;
     outline-offset: 2px;
 }
@@ -1269,6 +1277,10 @@ tbody tr:hover {
     grid-template-columns: minmax(220px, 1.3fr) minmax(200px, 1.2fr) minmax(200px, 1.2fr) minmax(90px, .55fr) minmax(100px, .65fr) auto;
 }
 
+.schedule-create-form {
+    grid-template-columns: minmax(220px, 1.3fr) minmax(150px, .85fr) minmax(155px, .9fr) minmax(110px, .55fr) minmax(110px, .55fr) auto;
+}
+
 .year-create-form {
     grid-template-columns: minmax(180px, 1fr) minmax(150px, .8fr) minmax(150px, .8fr) auto;
 }
@@ -1309,6 +1321,10 @@ tbody tr:hover {
 
 .class-table {
     min-width: 1280px;
+}
+
+.schedule-table {
+    min-width: 980px;
 }
 
 .year-table {
@@ -1368,25 +1384,20 @@ tbody tr:hover {
         display: none;
     }
 
-    .program-nav-link {
+    .program-nav-link,
+    .class-nav-link,
+    .schedule-nav-link,
+    .krs-nav-link {
         width: 36px;
         min-height: 36px;
         justify-content: center;
         padding: 0;
     }
 
-    .class-nav-link {
-        width: 36px;
-        min-height: 36px;
-        justify-content: center;
-        padding: 0;
-    }
-
-    .program-nav-label {
-        display: none;
-    }
-
-    .class-nav-label {
+    .program-nav-label,
+    .class-nav-label,
+    .schedule-nav-label,
+    .krs-nav-label {
         display: none;
     }
 
@@ -1443,6 +1454,7 @@ tbody tr:hover {
     .lecturer-create-form,
     .course-create-form,
     .class-create-form,
+    .schedule-create-form,
     .year-create-form,
     .room-create-form {
         grid-template-columns: 1fr;
