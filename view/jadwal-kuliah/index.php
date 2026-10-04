@@ -189,7 +189,7 @@ $masterReady = $classes !== [] && $rooms !== [];
                                                 <input type="hidden" name="id_jadwal_kuliah" value="<?= (int) $schedule['id_jadwal_kuliah'] ?>">
                                                 <select class="master-input" name="id_kelas_kuliah" required>
                                                     <?php foreach ($classes as $class) : ?>
-                                                        <option value="<?= (int) $class['id_kelas_kuliah'] ?>" <?= (int) $schedule['id_kelas_kuliah'] === (int) $class['id_kelas_kuliah'] ? 'selected' : '' ?>><?= htmlspecialchars($class['kode_mk'] . ' - ' . $class['kode_kelas'], ENT_QUOTES, 'UTF-8') ?></option>
+                                                        <option value="<?= (int) $class['id_kelas_kuliah'] ?>" <?= (int) $schedule['id_kelas_kuliah'] === (int) $class['id_kelas_kuliah'] ? 'selected' : '' ?>><?= htmlspecialchars($class['kode_mk'] . ' - ' . $class['kode_kelas'].' '.'('. $class['nama_mk']. ')', ENT_QUOTES, 'UTF-8') ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </form>
